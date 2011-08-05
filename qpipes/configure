@@ -1,0 +1,27 @@
+#!/bin/bash
+
+cd images && ./generate.sh && cd ..
+
+echo 'generating project files...'
+qmake -project && PRO=$(ls -1 *.pro | head -n1)
+
+if [[ $1 == 'windows' ]] ; then
+    echo 'configuring project file for Windows...'
+    echo 'CONFIG += warn_off' >> $PRO
+    echo 'DEFINES += QT_INCLUDE_COMPAT' >> $PRO
+
+    echo 'generating make files for Windows'
+    qmake -spec win32-g++
+    #qmake -spec win32-g++i486
+else
+    echo 'configuring project file for POSIX...'
+
+    if [[ $2 == 'debug' ]]; then
+        echo 'CONFIG += debug' >> $PRO
+    fi
+
+    echo 'DEFINES += QT_INCLUDE_COMPAT' >> $PRO
+
+    echo 'generating make files for POSIX'
+    qmake
+fi
